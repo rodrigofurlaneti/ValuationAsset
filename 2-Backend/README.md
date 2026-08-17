@@ -38,6 +38,7 @@ Execute os scripts na pasta `/1-Sql/` para criar a base `ValuationAssetDB` com a
 "ConnectionStrings": {
   "DefaultConnection": "Server=localhost;Database=ValuationAssetDB;User Id=sa;Password=SuaSenha;TrustServerCertificate=True;"
 }
+```
 
 ### 2. Rodando a API (Consultas)
 ####  Abra dois terminais na pasta /2-Backend/:
