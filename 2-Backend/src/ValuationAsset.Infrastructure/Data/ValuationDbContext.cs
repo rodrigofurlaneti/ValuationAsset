@@ -42,17 +42,17 @@ namespace ValuationAsset.Infrastructure.Data
                 builder.Property(f => f.StockTicker).HasMaxLength(10).IsRequired();
                 builder.Property(f => f.StatementDate).HasColumnType("date");
 
-                // Configuração dos Decimais (20,2)
+                // Configuração dos Decimais (18,2)
                 var decimalProps = new[] {
-                nameof(FinancialStatement.TotalAssets), nameof(FinancialStatement.LiquidAssets),
-                nameof(FinancialStatement.CurrentAssets), nameof(FinancialStatement.GrossDebt),
-                nameof(FinancialStatement.NetDebt), nameof(FinancialStatement.TotalEquity),
-                nameof(FinancialStatement.YearlyRevenue), nameof(FinancialStatement.YearlyEbit),
-                nameof(FinancialStatement.YearlyProfit), nameof(FinancialStatement.QuarterlyRevenue),
-                nameof(FinancialStatement.QuarterlyEbit), nameof(FinancialStatement.QuarterlyProfit)
-            };
+                    nameof(FinancialStatement.TotalAssets), nameof(FinancialStatement.LiquidAssets),
+                    nameof(FinancialStatement.CurrentAssets), nameof(FinancialStatement.GrossDebt),
+                    nameof(FinancialStatement.NetDebt), nameof(FinancialStatement.TotalEquity),
+                    nameof(FinancialStatement.YearlyRevenue), nameof(FinancialStatement.YearlyEbit),
+                    nameof(FinancialStatement.YearlyProfit), nameof(FinancialStatement.QuarterlyRevenue),
+                    nameof(FinancialStatement.QuarterlyEbit), nameof(FinancialStatement.QuarterlyProfit)
+                };
                 foreach (var prop in decimalProps)
-                    builder.Property(prop).HasColumnType("decimal(20,2)");
+                    builder.Property(prop).HasColumnType("decimal(18,2)");
 
                 builder.HasIndex(f => new { f.StockTicker, f.StatementDate }).IsUnique();
 
@@ -61,17 +61,17 @@ namespace ValuationAsset.Infrastructure.Data
                        .HasForeignKey(f => f.StockTicker);
             });
 
-            // 3. Mapeamento MarketQuote
+            // 3. Mapeamento MarketQuote (Ampliado para decimal(18,2) para suportar valores de mercado bilionários)
             modelBuilder.Entity<MarketQuote>(builder =>
             {
                 builder.ToTable("MarketQuote");
                 builder.HasKey(m => m.QuoteId);
                 builder.Property(m => m.StockTicker).HasMaxLength(10).IsRequired();
                 builder.Property(m => m.ReferenceDate).HasColumnType("date");
-                builder.Property(m => m.ClosingPrice).HasColumnType("decimal(10,2)");
-                builder.Property(m => m.AverageVolume).HasColumnType("decimal(20,2)");
-                builder.Property(m => m.MarketValue).HasColumnType("decimal(20,2)");
-                builder.Property(m => m.FirmValue).HasColumnType("decimal(20,2)");
+                builder.Property(m => m.ClosingPrice).HasColumnType("decimal(18,2)");
+                builder.Property(m => m.AverageVolume).HasColumnType("decimal(18,2)");
+                builder.Property(m => m.MarketValue).HasColumnType("decimal(18,2)");
+                builder.Property(m => m.FirmValue).HasColumnType("decimal(18,2)");
 
                 builder.HasIndex(m => new { m.StockTicker, m.ReferenceDate }).IsUnique();
 
@@ -80,7 +80,7 @@ namespace ValuationAsset.Infrastructure.Data
                        .HasForeignKey(m => m.StockTicker);
             });
 
-            // 4. Mapeamento MarketIndicator
+            // 4. Mapeamento MarketIndicator (Ampliado para decimal(18,4) para evitar overflow em múltiplos e percentuais)
             modelBuilder.Entity<MarketIndicator>(builder =>
             {
                 builder.ToTable("MarketIndicator");
@@ -88,16 +88,16 @@ namespace ValuationAsset.Infrastructure.Data
                 builder.Property(m => m.StockTicker).HasMaxLength(10).IsRequired();
                 builder.Property(m => m.ReferenceDate).HasColumnType("date");
 
-                builder.Property(m => m.PriceEarnings).HasColumnType("decimal(10,2)");
-                builder.Property(m => m.PriceBook).HasColumnType("decimal(10,2)");
-                builder.Property(m => m.EnterpriseEbitda).HasColumnType("decimal(10,2)");
-                builder.Property(m => m.EarningsShare).HasColumnType("decimal(10,2)");
-                builder.Property(m => m.BookShare).HasColumnType("decimal(10,2)");
+                builder.Property(m => m.PriceEarnings).HasColumnType("decimal(18,4)");
+                builder.Property(m => m.PriceBook).HasColumnType("decimal(18,4)");
+                builder.Property(m => m.EnterpriseEbitda).HasColumnType("decimal(18,4)");
+                builder.Property(m => m.EarningsShare).HasColumnType("decimal(18,4)");
+                builder.Property(m => m.BookShare).HasColumnType("decimal(18,4)");
 
-                builder.Property(m => m.DividendYield).HasColumnType("decimal(5,4)");
-                builder.Property(m => m.CapitalReturn).HasColumnType("decimal(5,4)");
-                builder.Property(m => m.EquityReturn).HasColumnType("decimal(5,4)");
-                builder.Property(m => m.NetMargin).HasColumnType("decimal(5,4)");
+                builder.Property(m => m.DividendYield).HasColumnType("decimal(18,4)");
+                builder.Property(m => m.CapitalReturn).HasColumnType("decimal(18,4)");
+                builder.Property(m => m.EquityReturn).HasColumnType("decimal(18,4)");
+                builder.Property(m => m.NetMargin).HasColumnType("decimal(18,4)");
 
                 builder.HasIndex(m => new { m.StockTicker, m.ReferenceDate }).IsUnique();
 

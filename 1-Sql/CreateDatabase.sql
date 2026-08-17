@@ -1,16 +1,16 @@
-CREATE DATABASE ValuationAssetDB;
+﻿CREATE DATABASE ValuationAssetDB;
+GO
 
 USE ValuationAssetDB;
-
 GO
 
 -- 1. Entity: CompanyAsset (Cadastro da Empresa/FII)
 CREATE TABLE CompanyAsset (
-    StockTicker VARCHAR(10) PRIMARY KEY, -- ASAI3
-    CompanyName VARCHAR(100),            -- ASSAI ON NM
-    AssetType VARCHAR(20),               -- ON NM
-    MarketSector VARCHAR(100),           -- Comércio e Distribuição
-    IndustryGroup VARCHAR(100)           -- Alimentos
+    StockTicker VARCHAR(10) PRIMARY KEY,
+    CompanyName VARCHAR(100),
+    AssetType VARCHAR(20),
+    MarketSector VARCHAR(100),
+    IndustryGroup VARCHAR(100)
 );
 GO
 
@@ -20,25 +20,22 @@ CREATE TABLE FinancialStatement (
     StockTicker VARCHAR(10) REFERENCES CompanyAsset(StockTicker),
     StatementDate DATE,
     
-    -- Balance Sheet (Patrimônio)
-    TotalAssets DECIMAL(20,2),           -- Ativo Total
-    LiquidAssets DECIMAL(20,2),          -- Disponibilidades
-    CurrentAssets DECIMAL(20,2),         -- Ativo Circulante
-    GrossDebt DECIMAL(20,2),             -- Dívida Bruta
-    NetDebt DECIMAL(20,2),               -- Dívida Líquida
-    TotalEquity DECIMAL(20,2),           -- Patrimônio Líquido
+    TotalAssets DECIMAL(18,2),
+    LiquidAssets DECIMAL(18,2),
+    CurrentAssets DECIMAL(18,2),
+    GrossDebt DECIMAL(18,2),
+    NetDebt DECIMAL(18,2),
+    TotalEquity DECIMAL(18,2),
     
-    -- Income Statement 12 Months (DRE 12m)
-    YearlyRevenue DECIMAL(20,2),         -- Receita Líquida 12m
-    YearlyEbit DECIMAL(20,2),            -- EBIT 12m
-    YearlyProfit DECIMAL(20,2),          -- Lucro Líquido 12m
+    YearlyRevenue DECIMAL(18,2),
+    YearlyEbit DECIMAL(18,2),
+    YearlyProfit DECIMAL(18,2),
     
-    -- Income Statement 3 Months (DRE 3m)
-    QuarterlyRevenue DECIMAL(20,2),      -- Receita Líquida 3m
-    QuarterlyEbit DECIMAL(20,2),         -- EBIT 3m
-    QuarterlyProfit DECIMAL(20,2),       -- Lucro Líquido 3m
+    QuarterlyRevenue DECIMAL(18,2),
+    QuarterlyEbit DECIMAL(18,2),
+    QuarterlyProfit DECIMAL(18,2),
     
-    SharesCount BIGINT,                  -- Número de Ações
+    SharesCount BIGINT,
     
     UNIQUE(StockTicker, StatementDate)
 );
@@ -48,37 +45,34 @@ GO
 CREATE TABLE MarketQuote (
     QuoteId INT IDENTITY(1,1) PRIMARY KEY,
     StockTicker VARCHAR(10) REFERENCES CompanyAsset(StockTicker),
-    ReferenceDate DATE,                  -- Data da coleta
+    ReferenceDate DATE,
     
-    ClosingPrice DECIMAL(10,2),          -- Cotação atual
-    AverageVolume DECIMAL(20,2),         -- Volume médio (2m)
-    MarketValue DECIMAL(20,2),           -- Valor de mercado
-    FirmValue DECIMAL(20,2),             -- Valor da firma (Enterprise Value)
+    ClosingPrice DECIMAL(18,2),
+    AverageVolume DECIMAL(18,2),
+    MarketValue DECIMAL(18,2),
+    FirmValue DECIMAL(18,2),
     
     UNIQUE(StockTicker, ReferenceDate)
 );
 GO
 
--- 4. Entity: MarketIndicator (Indicadores Fundamentalistas)
+-- 4. Entity: MarketIndicator (Indicadores Fundamentalistas - Precisão aumentada)
 CREATE TABLE MarketIndicator (
     IndicatorId INT IDENTITY(1,1) PRIMARY KEY,
     StockTicker VARCHAR(10) REFERENCES CompanyAsset(StockTicker),
     ReferenceDate DATE,
     
-    -- Valuation Indicators
-    PriceEarnings DECIMAL(10,2),         -- P/L
-    PriceBook DECIMAL(10,2),             -- P/VP
-    EnterpriseEbitda DECIMAL(10,2),      -- EV/EBITDA
-    DividendYield DECIMAL(5,4),          -- Div. Yield
+    PriceEarnings DECIMAL(18,4),
+    PriceBook DECIMAL(18,4),
+    EnterpriseEbitda DECIMAL(18,4),
+    DividendYield DECIMAL(18,4),
     
-    -- Per Share Indicators
-    EarningsShare DECIMAL(10,2),         -- LPA (Lucro Por Ação)
-    BookShare DECIMAL(10,2),             -- VPA (Valor Patrimonial por Ação)
+    EarningsShare DECIMAL(18,4),
+    BookShare DECIMAL(18,4),
     
-    -- Profitability Indicators
-    CapitalReturn DECIMAL(5,4),          -- ROIC
-    EquityReturn DECIMAL(5,4),           -- ROE
-    NetMargin DECIMAL(5,4),              -- Margem Líquida
+    CapitalReturn DECIMAL(18,4),
+    EquityReturn DECIMAL(18,4),
+    NetMargin DECIMAL(18,4),
     
     UNIQUE(StockTicker, ReferenceDate)
 );
@@ -87,9 +81,9 @@ GO
 -- 5. Entity: ExecutionLog (Controle de Execução do Worker)
 CREATE TABLE ExecutionLog (
     LogId INT IDENTITY(1,1) PRIMARY KEY,
-    ExecutionTime DATETIME2 NOT NULL,    -- Data e hora do processamento
-    ProcessStatus VARCHAR(50) NOT NULL,  -- Ex: 'SUCCESS', 'SKIPPED', 'ERROR'
-    LogMessage VARCHAR(MAX) NULL,        -- Mensagem de erro ou detalhe do processo
-    RecordsAffected INT DEFAULT 0        -- Quantidade de registros atualizados/novos
+    ExecutionTime DATETIME2 NOT NULL,
+    ProcessStatus VARCHAR(50) NOT NULL,
+    LogMessage VARCHAR(MAX) NULL,
+    RecordsAffected INT DEFAULT 0
 );
 GO

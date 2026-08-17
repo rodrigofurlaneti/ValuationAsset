@@ -7,5 +7,6 @@ namespace ValuationAsset.Application.Interfaces
     public interface IMarketScraperService
     {
         Task<ScrapedMarketData?> ScrapeAssetDataAsync(string ticker, CancellationToken cancellationToken);
+        Task<List<string>> GetAllActiveTickersAsync(CancellationToken cancellationToken);
     }
 }
