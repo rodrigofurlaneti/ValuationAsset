@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ValuationAsset.Api/ValuationAsset.Api.csproj" />
+    <Project Path="src/ValuationAsset.Application/ValuationAsset.Application.csproj" />
+    <Project Path="src/ValuationAsset.Domain/ValuationAsset.Domain.csproj" />
+    <Project Path="src/ValuationAsset.Infrastructure/ValuationAsset.Infrastructure.csproj" />
+    <Project Path="src/ValuationAsset.Worker/ValuationAsset.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ValuationAsset.ArchitectureTests/ValuationAsset.ArchitectureTests.csproj" />
+    <Project Path="tests/ValuationAsset.BddTests/ValuationAsset.BddTests.csproj" />
+    <Project Path="tests/ValuationAsset.UnitTests/ValuationAsset.UnitTests.csproj" />
+  </Folder>
+</Solution>

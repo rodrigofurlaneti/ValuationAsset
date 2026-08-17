@@ -1,0 +1,6 @@
+@ValuationAsset.Api_HostAddress = http://localhost:5263
+
+GET {{ValuationAsset.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
