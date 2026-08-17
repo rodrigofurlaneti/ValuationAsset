@@ -3,183 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valuation B3 - Análise Fundamentalista (Graham)</title>
+    <title>Valuation B3 - Análise Fundamentalista</title>
     <!-- Fonte Google Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --primary: #3b82f6;
-            --success-bg: rgba(16, 185, 129, 0.1);
-            --success-text: #34d399;
-            --danger-bg: rgba(239, 68, 68, 0.1);
-            --danger-text: #f87171;
-            --border: #334155;
-            --hover: #2563eb;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 30px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Cabeçalho */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 20px;
-        }
-
-            header h1 {
-                font-size: 24px;
-                font-weight: 700;
-                color: var(--text-main);
-            }
-
-                header h1 span {
-                    color: var(--primary);
-                }
-
-        /* Controles (Pesquisa e Botão IBOV) */
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            flex: 1;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 15px;
-            color: var(--text-main);
-            font-size: 14px;
-            outline: none;
-            transition: border 0.2s;
-            min-width: 250px;
-        }
-
-            .search-box:focus {
-                border-color: var(--primary);
-            }
-
-        .btn-ibov {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-            .btn-ibov:hover {
-                border-color: var(--primary);
-            }
-
-            .btn-ibov.active {
-                background-color: var(--primary);
-                border-color: var(--primary);
-                color: white;
-            }
-
-        /* Tabela Estilizada */
-        .table-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th {
-            background-color: #111827;
-            color: var(--text-muted);
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 15px 20px;
-            font-weight: 600;
-        }
-
-        td {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover {
-            background-color: rgba(255, 255, 255, 0.02);
-        }
-
-        /* Tags de Status */
-        .badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-            .badge.barata {
-                background-color: var(--success-bg);
-                color: var(--success-text);
-            }
-
-            .badge.cara {
-                background-color: var(--danger-bg);
-                color: var(--danger-text);
-            }
-
-        .loading, .no-results {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-muted);
-            font-size: 15px;
-        }
-    </style>
+    <!-- Importação do CSS externo -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
         <!-- Cabeçalho -->
         <header>
-            <h1>📈 Valuation B3 <span>| Benjamin Graham</span></h1>
+            <h1>📈 Valuation B3 <span id="tituloMetodologia">| Benjamin Graham</span></h1>
         </header>
 
-        <!-- Controles -->
+        <!-- Seletor de Metodologia -->
+        <div class="controls">
+            <select id="metodologiaSelector" class="search-box" onchange="mudarMetodologia(this.value)">
+                <option value="graham">Benjamin Graham (Preço Justo)</option>
+                <option value="bazin">Décio Bazin (Preço Teto / Dividendos)</option>
+                <option value="magic">Magic Formula (Ranking Greenblatt)</option>
+                <option value="gordon">Modelo de Gordon (Fluxo de Dividendos)</option>
+            </select>
+        </div>
+
+        <!-- Controles de Pesquisa e Filtro IBOV -->
         <div class="controls">
             <input type="text" id="searchInput" class="search-box" placeholder="Pesquisar por Ticker ou Nome da Empresa..." onkeyup="filtrarAcoes()">
             <button id="btnIbov" class="btn-ibov" onclick="toggleFiltroIbov()">Apenas IBOV (Alta Liquidez)</button>
@@ -189,7 +37,7 @@
         <div class="table-container">
             <table>
                 <thead>
-                    <tr>
+                    <tr id="tableHeaders">
                         <th>Ticker</th>
                         <th>Empresa</th>
                         <th>Preço Atual</th>
@@ -207,95 +55,8 @@
         </div>
     </div>
 
-    <script>
-        let todasAcoes = [];
-        let apenasIbovAtivo = false;
+    <!-- Importação do arquivo JavaScript externo -->
+    <script src="script.js"></script>
 
-        // Lista de principais tickers que compõem o Ibovespa (Pode ser expandida conforme a carteira teórica da B3)
-        const tickersIbov = [
-            "VALE3", "PETR4", "PETR3", "ITUB4", "BBDC4", "BBDC3", "B3SA3", "ABEV3",
-            "WEGE3", "ITSA4", "BPAC11", "BBAS3", "SANB11", "RADL3", "SUZB3", "JBSS3",
-            "RENT3", "EQTL3", "VBBR3", "HAPV3", "COGN3", "LIGT3", "TIMS3", "VIVT3",
-            "PRIO3", "RECV3", "CSAN3", "UGPA3", "RAIL3", "CCRO3", "ENEV3", "CMIG4",
-            "CPFE3", "EGIE3", "SBSP3", "CSNA3", "USIM5", "GGBR4", "GOAU4", "EMBR3"
-        ];
-
-        async function carregarDados() {
-            try {
-                const response = await fetch('http://localhost:5263/api/Asset/analysis/graham');
-                todasAcoes = await response.json();
-
-                aplicarFiltros();
-            } catch (erro) {
-                console.error("Erro ao buscar dados:", erro);
-                document.getElementById('tabela-acoes').innerHTML = `
-                        <tr><td colspan="6" class="no-results" style="color: var(--danger-text);">Erro ao conectar na API. Verifique se o backend está rodando na porta correta.</td></tr>
-                    `;
-            }
-        }
-
-        function toggleFiltroIbov() {
-            apenasIbovAtivo = !apenasIbovAtivo;
-            const btn = document.getElementById('btnIbov');
-
-            if (apenasIbovAtivo) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-
-            aplicarFiltros();
-        }
-
-        function filtrarAcoes() {
-            aplicarFiltros();
-        }
-
-        function aplicarFiltros() {
-            const termo = document.getElementById('searchInput').value.toLowerCase();
-
-            let filtradas = todasAcoes.filter(acao => {
-                const matchTexto = acao.stockTicker.toLowerCase().includes(termo) ||
-                    acao.companyName.toLowerCase().includes(termo);
-
-                // Se o filtro do IBOV estiver ativo, valida se o ticker está na lista do IBOV
-                const matchIbov = apenasIbovAtivo ? tickersIbov.includes(acao.stockTicker) : true;
-
-                return matchTexto && matchIbov;
-            });
-
-            renderizarTabela(filtradas);
-        }
-
-        function renderizarTabela(dados) {
-            const tbody = document.getElementById('tabela-acoes');
-            tbody.innerHTML = '';
-
-            if (dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="no-results">Nenhuma ação encontrada com os filtros aplicados.</td></tr>`;
-                return;
-            }
-
-            dados.forEach(acao => {
-                const row = document.createElement('tr');
-
-                const isBarata = acao.valuationStatus.toLowerCase().includes('descontada') || acao.valuationStatus.toLowerCase().includes('preço justo');
-                const classeStatus = isBarata ? 'barata' : 'cara';
-
-                row.innerHTML = `
-                        <td><strong>${acao.stockTicker}</strong></td>
-                        <td>${acao.companyName}</td>
-                        <td>R$ ${acao.currentPrice.toFixed(2)}</td>
-                        <td style="color: var(--success-text);">R$ ${acao.fairPrice.toFixed(2)}</td>
-                        <td><strong>${acao.safetyMarginPercentage}%</strong></td>
-                        <td><span class="badge ${classeStatus}">${acao.valuationStatus}</span></td>
-                    `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // Executa ao carregar a página
-        carregarDados();
-    </script>
 </body>
 </html>

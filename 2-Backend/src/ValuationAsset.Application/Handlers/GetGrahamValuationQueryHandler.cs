@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ValuationAsset.Application.Dtos;
 using ValuationAsset.Application.Queries;
 using ValuationAsset.Domain.Repositories;
 

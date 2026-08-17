@@ -32,6 +32,30 @@ public class AssetController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("analysis/gordon")]
+    public async Task<IActionResult> GetGordonAnalysis(CancellationToken cancellationToken)
+    {
+        var query = new GetGordonValuationQuery();
+        var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("analysis/magic-formula")]
+    public async Task<IActionResult> GetMagicFormulaAnalysis(CancellationToken cancellationToken)
+    {
+        var query = new GetMagicFormulaQuery();
+        var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("analysis/bazin")]
+    public async Task<IActionResult> GetBazinAnalysis(CancellationToken cancellationToken)
+    {
+        var query = new GetBazinValuationQuery();
+        var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
     /// <summary>
     /// Retorna a análise de Preço Justo de Graham e a Margem de Segurança para todos os ativos ativos.
     /// Exemplo: GET /api/asset/analysis/graham
