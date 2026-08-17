@@ -1,84 +1,59 @@
-# 📈 ValuationAsset - Backend Data Platform
+﻿# 📈 ValuationAsset - Backend Data Platform
 
-Plataforma backend responsável por coletar, validar, processar e servir dados financeiros e fundamentalistas de ações e FIIs. 
-
-O sistema é construído sobre os princípios de **Clean Architecture** e **Domain-Driven Design (DDD)**, utilizando o padrão **CQRS** para segregar operações de leitura (API) e escrita (Worker).
+Plataforma backend robusta projetada para coletar, processar e servir dados financeiros e fundamentalistas da B3. O sistema utiliza **Clean Architecture**, **DDD (Domain-Driven Design)** e **CQRS** para garantir escalabilidade e manutenibilidade.
 
 ---
 
 ## 🏛️ Arquitetura do Sistema
 
-O projeto está dividido em duas aplicações principais que compartilham o mesmo domínio:
+O projeto é dividido em camadas que garantem o desacoplamento das regras de negócio em relação à persistência e à interface:
 
-1. **ValuationAsset.Api (RESTful API):** Camada de apresentação focada em *Queries*. Fornece os dados processados para frontends ou outros consumidores de forma rápida e escalável.
-2. **ValuationAsset.Worker (Background Service):** Serviço rodando em segundo plano responsável pelos *Commands*. Ele executa a raspagem/coleta de dados, validação e persistência no banco de dados de forma periódica.
-
-### Divisão de Camadas (Clean Architecture)
-
-* **`Domain`**: Contém o coração da aplicação. Entidades (`CompanyAsset`, `FinancialStatement`, `MarketQuote`, etc.), *Value Objects*, *Interfaces* de repositórios e regras de negócio. Não possui dependências externas.
-* **`Application`**: Orquestra os casos de uso utilizando CQRS. Contém os manipuladores de comandos (ex: `SyncMarketDataCommand`) e consultas (ex: `GetAssetValuationQuery`).
-* **`Infrastructure`**: Implementação técnica. Repositórios (SQL Server), integrações externas (HTTP Clients para *scraping*) e configurações de banco de dados.
-* **`Presentation`**: Controladores da API REST e o host do Worker Service.
+1. **ValuationAsset.Api (REST):** Focada em *Queries*. Oferece endpoints para consulta de dados e análises de valuation.
+2. **ValuationAsset.Worker (Background Service):** Focado em *Commands*. Executa a varredura automática da B3, persistindo dados com consistência transacional.
+3. **Infrastructure (Data & Scraping):** Implementa o acesso a dados via **EF Core** e **Dapper**, além do motor de *Scraping* que lê a B3 em tempo real.
+4. **Application:** Contém os casos de uso e a lógica de cálculo (ex: fórmula de Benjamin Graham).
+5. **Domain:** Entidades puras e contratos de repositório, sem dependências externas.
 
 ---
 
-## ⚙️ Fluxo do Worker de Sincronização
+## ⚙️ Funcionalidades Principais
 
-O `ValuationAsset.Worker` é executado de forma cíclica **a cada 1 minuto**. Para garantir performance e integridade, ele segue uma esteira rigorosa de validação antes de qualquer inserção no banco:
-
-### Regras de Processamento (Pipeline)
-
-1. **Tracking de Execução:** O processo se inicia lendo a tabela de controle (ex: `SyncExecutionLog`) para resgatar a data/hora do último processamento bem-sucedido.
-2. **Coleta de Dados:** Realiza a extração do *snapshot* atual do mercado a partir da fonte de dados (ex: Fundamentus).
-3. **Validação de Delta (Has New Data?):** 
-   * Compara os dados recém-coletados com o último registro válido no banco (verificando a data do balanço e variações na cotação diária).
-   * **Caminho A (Sem novidades):** O Worker aborta a atualização, registra no log que não houve alterações e entra em repouso até o próximo ciclo.
-   * **Caminho B (Dados novos/atualizados):** O Worker avança para a etapa de persistência.
-4. **Atualização Transacional:** Todos os dados novos (`MarketQuote`, `MarketIndicator`, `FinancialStatement`) são atualizados utilizando transações no banco de dados (tudo ou nada) para garantir a consistência relacional.
-5. **Registro de Sucesso:** Atualiza a tabela `SyncExecutionLog` com o timestamp atual e o status final (`SUCCESS`).
+* **Descoberta Dinâmica de Ativos:** O sistema varre a página de resultados da B3 (Fundamentus) periodicamente e cadastra novos ativos automaticamente na base de dados.
+* **Valuation Automático (Graham):** Endpoint exclusivo que calcula o Preço Justo de Graham e a Margem de Segurança, ordenando automaticamente os ativos da mais atrativa para a mais cara.
+* **Resiliência Numérica:** O banco de dados utiliza precisão `DECIMAL(18,4)` para evitar *Arithmetic Overflow* ao processar números bilionários ou indicadores de alta precisão.
+* **Arquitetura CQRS:** Separação total de escrita (Worker) e leitura (API), permitindo performance otimizada com Dapper para consultas complexas.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
-
-* **Framework:** .NET 8 (C#)
-* **Banco de Dados:** Microsoft SQL Server
-* **Arquitetura:** Clean Architecture, DDD, CQRS
-* **Bibliotecas Principais:**
-  * `MediatR` (Mensageria in-memory para CQRS)
-  * `Entity Framework Core` / `Dapper` (Acesso a dados)
-  * `Microsoft.Extensions.Hosting` (BackgroundService para o Worker)
-  * `HtmlAgilityPack` ou `PuppeteerSharp` (Scraping de dados)
-
----
-
-## 🚀 Como Executar o Projeto
+## 🚀 Como Executar
 
 ### Pré-requisitos
-* SDK do .NET 8+
-* SQL Server (local ou via Docker)
+* .NET 8 SDK
+* SQL Server (ajustado para precisão decimal 18,4)
 
-### 1. Configuração do Banco de Dados
-Certifique-se de rodar os scripts SQL (disponíveis na pasta `/1-Sql/CreateDatabase/`) para gerar o banco de dados `ValuationAssetDB` e suas respectivas tabelas.
+### 1. Configuração do Banco
+Execute os scripts na pasta `/1-Sql/` para criar a base `ValuationAssetDB` com as tabelas otimizadas. Atualize sua *Connection String* nos arquivos `appsettings.json` da **API** e do **Worker**:
 
-Atualize a *Connection String* no arquivo `appsettings.json` tanto na API quanto no Worker:
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=localhost;Database=ValuationAssetDB;User Id=sa;Password=SuaSenhaForte;TrustServerCertificate=True;"
+  "DefaultConnection": "Server=localhost;Database=ValuationAssetDB;User Id=sa;Password=SuaSenha;TrustServerCertificate=True;"
 }
-```
 
 ### 2. Rodando a API (Consultas)
-####  Navegue até a pasta da API e inicie a aplicação:
+####  Abra dois terminais na pasta /2-Backend/:
+#### Para iniciar a API (Swagger):
+
 ```bash
 cd src/ValuationAsset.Api
 dotnet run
 ```
 
-A documentação interativa (Swagger) estará disponível em http://localhost:5000/swagger.
+#### A documentação interativa (Swagger) estará disponível em http://localhost:5000/swagger.
 
 ### 3. Rodando o Worker (Processamento)
-Abra um novo terminal, navegue até a pasta do Worker e inicie o serviço:
+#### Abra um novo terminal, navegue até a pasta do Worker e inicie o serviço:
+#### Para iniciar o Worker (Sincronização):
+
 ```bash
 cd src/ValuationAsset.Worker
 dotnet run
@@ -90,17 +65,25 @@ dotnet run
 
 ```Plaintext
 ├── 1-Sql/
-│   └── CreateDatabase/                     # Scripts SQL de criação do banco
+│   └── CreateDatabase/                     # Scripts SQL de criação do banco e Scripts SQL (DDL/DML)
 └── 2-Backend/
     ├── src/
-    │   ├── ValuationAsset.Domain/          # Entidades e Interfaces do Domínio
-    │   ├── ValuationAsset.Application/     # Casos de uso (Commands/Queries)
-    │   ├── ValuationAsset.Infrastructure/  # EF Core, Dapper, Scraping Services
-    │   ├── ValuationAsset.Api/             # Controllers REST API
-    │   └── ValuationAsset.Worker/          # Background Services (Worker de 1 min)
-    └── tests/
+    │   ├── ValuationAsset.Domain/          # Entidades e Interfaces do Domínio e a Camada pura (Entidades/Interfaces)
+    │   ├── ValuationAsset.Application/     # Casos de uso (Commands/Queries) e a Casos de uso (Commands/Queries/Handlers
+    │   ├── ValuationAsset.Infrastructure/  # EF Core, Dapper, Scraping Services e a Repositórios (Dapper/EF Core)
+    │   ├── ValuationAsset.Api/             # Controllers REST API e a Endpoints REST
+    │   └── ValuationAsset.Worker/          # Background Services (Worker de 1 hora) e a Background Service (Scraper B3)
+    └── tests/                              # Testes Unitários e de Arquitetura
         ├── ValuationAsset.UnitTests/         # Testes unitários
         ├── ValuationAsset.BddTests/          # Testes BDD
         └── ValuationAsset.ArchitectureTests/ # Testes de arquitetura (NetArchTest)
 ```
+
+## 🛠️ Tecnologias
+### Framework: .NET 8 (C#)
+### ORM: EF Core 8 & Dapper
+### Mediator: MediatR
+### Database: SQL Server
+
+#### Este arquivo agora reflete exatamente o estado atual do seu projeto, incluindo as correções de arquitetura, a precisão decimal ajustada e as novas funcionalidades de scraping e análise de Graham.
 
