@@ -83,3 +83,13 @@ CREATE TABLE MarketIndicator (
     UNIQUE(StockTicker, ReferenceDate)
 );
 GO
+
+-- 5. Entity: ExecutionLog (Controle de Execução do Worker)
+CREATE TABLE ExecutionLog (
+    LogId INT IDENTITY(1,1) PRIMARY KEY,
+    ExecutionTime DATETIME2 NOT NULL,    -- Data e hora do processamento
+    ProcessStatus VARCHAR(50) NOT NULL,  -- Ex: 'SUCCESS', 'SKIPPED', 'ERROR'
+    LogMessage VARCHAR(MAX) NULL,        -- Mensagem de erro ou detalhe do processo
+    RecordsAffected INT DEFAULT 0        -- Quantidade de registros atualizados/novos
+);
+GO
