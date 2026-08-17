@@ -59,7 +59,7 @@ O `ValuationAsset.Worker` é executado de forma cíclica **a cada 1 minuto**. Pa
 * SQL Server (local ou via Docker)
 
 ### 1. Configuração do Banco de Dados
-Certifique-se de rodar os scripts SQL (disponíveis na pasta `/scripts/`) para gerar o banco de dados `ValuationAssetDB` e suas respectivas tabelas.
+Certifique-se de rodar os scripts SQL (disponíveis na pasta `/1-Sql/CreateDatabase/`) para gerar o banco de dados `ValuationAssetDB` e suas respectivas tabelas.
 
 Atualize a *Connection String* no arquivo `appsettings.json` tanto na API quanto no Worker:
 ```json
@@ -88,19 +88,19 @@ dotnet run
 
 ### 📂 Estrutura de Diretórios
 
-```bash
-1-Sql/
-├── CreateDatabase/                     # Scripts SQL de criação do banco
-2-Backend/
-├── src/
-│   ├── ValuationAsset.Domain/          # Entidades e Interfaces do Domínio
-│   ├── ValuationAsset.Application/     # Casos de uso (Commands/Queries)
-│   ├── ValuationAsset.Infrastructure/  # EF Core, Dapper, Scraping Services
-│   ├── ValuationAsset.Api/             # Controllers REST API
-│   └── ValuationAsset.Worker/          # Background Services (Worker de 1 min)
-├── tests/
-│   └── ValuationAsset.UnitTests/               # Testes unitários
-│   └── ValuationAsset.BddTests/                # Testes BDD
-│   └── ValuationAsset.ArchitectureTests/       # Testes de arquiteutra
+```Plaintext
+├── 1-Sql/
+│   └── CreateDatabase/                     # Scripts SQL de criação do banco
+└── 2-Backend/
+    ├── src/
+    │   ├── ValuationAsset.Domain/          # Entidades e Interfaces do Domínio
+    │   ├── ValuationAsset.Application/     # Casos de uso (Commands/Queries)
+    │   ├── ValuationAsset.Infrastructure/  # EF Core, Dapper, Scraping Services
+    │   ├── ValuationAsset.Api/             # Controllers REST API
+    │   └── ValuationAsset.Worker/          # Background Services (Worker de 1 min)
+    └── tests/
+        ├── ValuationAsset.UnitTests/         # Testes unitários
+        ├── ValuationAsset.BddTests/          # Testes BDD
+        └── ValuationAsset.ArchitectureTests/ # Testes de arquitetura (NetArchTest)
 ```
 
